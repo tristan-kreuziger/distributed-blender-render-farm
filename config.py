@@ -33,12 +33,27 @@ def create_default_config(config_filename):
     with open(config_filename, 'w', encoding='utf8') as f:
         json.dump(get_default_config(), f, indent=4)
 
-    logging.info('Created new default config file at "{}".'.format(config_filename))
+    logging.info('Created new default config file at "{}".'.format(os.path.join(os.getcwd(), config_filename)))
 
 
 def create_config_interactively(config_filename):
-    # TODO
-    raise NotImplementedError('Interactive config file creation not supported yet, upcoming feature in v.0.1.0')
+    config = get_default_config()
+
+    try:
+        print('Choose the values for all parameters of the configuration.')
+        for top_level_key in config:
+            print('Category {}: '.format(top_level_key))
+
+            for low_level_key in config[top_level_key]:
+                print('\t{}: '.format(low_level_key), end='')
+                config[top_level_key][low_level_key] = input()
+
+        with open(config_filename, 'w', encoding='utf8') as f:
+            json.dump(config, f, indent=4)
+    except KeyboardInterrupt:
+        logging.info('Cancelled')
+
+    logging.info('Created new config file at "{}".'.format(os.path.join(os.getcwd(), config_filename)))
 
 
 def load_config(config_filename):
