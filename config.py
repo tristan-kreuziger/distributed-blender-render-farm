@@ -30,7 +30,7 @@ def get_default_config():
 
 
 def create_default_config(config_filename):
-    with open(config_filename, 'w') as f:
+    with open(config_filename, 'w', encoding='utf8') as f:
         json.dump(get_default_config(), f, indent=4)
 
     logging.info('Created new default config file at "{}".'.format(config_filename))
@@ -43,7 +43,7 @@ def create_config_interactively(config_filename):
 
 def load_config(config_filename):
     try:
-        with open(config_filename, 'r') as f:
+        with open(config_filename, 'r', encoding='utf8') as f:
             return json.load(f)
     except Exception as e:
         logging.critical('Exception occured ({}), run validate-config'.format(e))
