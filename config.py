@@ -46,7 +46,7 @@ def load_config(config_filename):
         with open(config_filename, 'r', encoding='utf8') as f:
             return json.load(f)
     except Exception as e:
-        logging.critical('Exception occured ({}), run validate-config'.format(e))
+        logging.critical('Exception occurred ({}), run validate-config'.format(e))
 
 
 def validate_config(config_filename):
