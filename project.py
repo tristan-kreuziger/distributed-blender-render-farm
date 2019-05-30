@@ -424,7 +424,7 @@ def render_frames(args, cfg, db, cursor):
         logging.info('Finished rendering frames {} for project "{}" ({:0.3f}s).'.format(
             ', '.join([str(f) for f in frames]), args.project_name, end_time))
     except Exception as e:
-        logging.critical('During the rendering by Blender an exception occured: ' + str(e))
+        logging.critical('During the rendering by Blender an exception occurred: ' + str(e))
         set_frame_task_status(args, cfg, db, cursor, 'FAILED', frames)
 
     filenames = [os.path.join(os.getcwd(), cfg['general']['output_path'],
