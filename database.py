@@ -1,32 +1,61 @@
 import mysql.connector
-import config
 import os
+import logging
 
 
 def connect_to_database(cfg):
-    return mysql.connector.connect(
-        host=cfg['database']['host'],
-        user=cfg['database']['user'],
-        passwd=cfg['database']['pw'],
-        database=cfg['database']['db']
-    )
+    try:
+        db = mysql.connector.connect(
+            host=cfg['database']['host'],
+            user=cfg['database']['user'],
+            passwd=cfg['database']['pw'],
+            port=cfg['database']['port'],
+            database=cfg['database']['db']
+        )
+
+        return db, db.cursor(buffered=False)
+    except Exception as e:
+        logging.critical('The database connector produced an error, '
+                         'when trying to connect to the database: ' + str(e))
 
 
-def setup_database(config_filename):
-    cfg = config.load_config(config_filename)
-    db = connect_to_database(cfg)
+def close_connection(db, cursor):
+    try:
+        cursor.close()
+        db.close()
+    except Exception as e:
+        logging.critical('The database connector produced an error, '
+                         'when trying to close the connection to the database: '
+                         + str(e))
 
-    cursor = db.cursor(buffered=True)
 
-    cursor.execute('USE {};'.format(cfg['database']['db']))
+def execute_statement(db, cursor, sql, params, with_result=False, multi=False, commit=False):
+    try:
+        cursor.execute(sql, params, multi=multi)
+        if commit:
+            db.commit()
 
-    cursor.execute('SHOW TABLES;')
-    for x in cursor:
-        table_name = x[0].decode('utf-8')
-        cursor.execute('DROP TABLE {};'.format(table_name))
+        if with_result:
+            return cursor.fetchall()
+
+    except Exception as e:
+        logging.critical('The statement ("{}") could not be executed: {}'.format(sql, e))
+
+
+def setup_database(cfg):
+    db, cursor = connect_to_database(cfg)
+
+    execute_statement(db, cursor, 'USE {};'.format(cfg['database']['db']), ())
+    execute_statement(db, cursor, 'SHOW TABLES;', ())
+
+    tables = cursor
+
+    for table in tables:
+        execute_statement(db, cursor, 'DROP TABLE {};'.format(table[0].decode('utf-8')), ())
 
     with open(os.path.join(os.getcwd(), 'database', 'setup.sql'), 'r') as f:
-        cursor.execute(' '.join(f.readlines()), multi=True)
+        execute_statement(db, cursor, ' '.join(f.readlines()), (), multi=True)
 
-    cursor.close()
-    db.close()
+    close_connection(db, cursor)
+
+    logging.info('The database was successfully set up.')

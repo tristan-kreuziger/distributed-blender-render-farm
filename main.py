@@ -1,4 +1,5 @@
 import commandline
+import log
 
 
 _AUTHOR = 'Tristan Kreuziger'
@@ -12,13 +13,17 @@ def info():
     print('Author: {}'.format(_AUTHOR))
     print('Version: {}'.format(_VERSION))
     print('License: {}'.format(_LICENSE))
-    print('-' * 20)
     print('')
 
 
 def main():
     info()
-    commandline.parse_and_execute_actions(commandline.parse_parameters())
+
+    args = commandline.parse_parameters()
+    if args.version:
+        print('Version: {}'.format(_VERSION))
+    else:
+        commandline.parse_and_execute_actions(args)
 
 
 if __name__ == '__main__':
