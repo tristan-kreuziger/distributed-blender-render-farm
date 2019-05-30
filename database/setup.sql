@@ -9,6 +9,9 @@ CREATE TABLE render_project
 		PRIMARY KEY (id)
 );
 
+CREATE UNIQUE INDEX render_project_project_name_uindex
+	ON render_project (project_name);
+
 CREATE TABLE render_project_status
 (
 	id INT AUTO_INCREMENT,
@@ -21,7 +24,7 @@ CREATE UNIQUE INDEX render_project_status_status_name_uindex
 	ON render_project_status (status_name);
 
 INSERT INTO render_project_status (status_name) VALUES
-  ('CREATED'), ('FINISHED'), ('CANCELLED');
+  ('CREATED'), ('RUNNING'), ('FINISHED'), ('CANCELLED');
 
 CREATE TABLE render_project_history
 (
@@ -46,6 +49,8 @@ CREATE TABLE render_machine
 CREATE UNIQUE INDEX render_machine_machine_name_uindex
 	ON render_machine (machine_name);
 
+INSERT INTO render_machine (machine_name) VALUES ('SERVER');
+
 CREATE TABLE frame_task
 (
 	render_project_id INT NOT NULL,
@@ -69,7 +74,7 @@ CREATE UNIQUE INDEX frame_task_status_status_name_uindex
 	ON frame_task_status (status_name);
 
 INSERT INTO frame_task_status (status_name) VALUES
-	('CREATED'), ('RESERVED'), ('FINISHED'), ('FAILED');
+	('CREATED'), ('RESERVED'), ('FINISHED'), ('CANCELLED'), ('FAILED');
 
 CREATE TABLE frame_task_history
 (
